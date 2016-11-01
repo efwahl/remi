@@ -271,8 +271,8 @@ def parse_parametrs(p):
             p = p[l + 1:]
             ret[field_name] = field_value
     return ret
-    
-    
+
+
 def gui_update_children_version(client, leaf):
     """ This function is called when a leaf is updated by gui_updater
         and so, children does not need graphical update, it is only
@@ -280,15 +280,15 @@ def gui_update_children_version(client, leaf):
     """
     if not hasattr(leaf, 'attributes'):
         return False
-    
+
     leaf.attributes.__lastversion__ = leaf.attributes.__version__
     leaf.style.__lastversion__ = leaf.style.__version__
     leaf.children.__lastversion__ = leaf.children.__version__
-    
+
     for subleaf in leaf.children.values():
         gui_update_children_version(client, subleaf)
-    
-    
+
+
 def gui_updater(client, leaf, no_update_because_new_subchild=False):
     if not hasattr(leaf, 'attributes'):
         return False
@@ -329,16 +329,16 @@ def gui_updater(client, leaf, no_update_because_new_subchild=False):
                 ws.send_message('update_widget,' + __id + ',' + to_websocket(html))
             except:
                 client.websockets.remove(ws)
-        
+
         # update children dictionaries __version__ in order to avoid nested updates
         gui_update_children_version(client, leaf)
         return True
-    
+
     changed_or = False
     # checking if subwidgets changed
     for subleaf in leaf.children.values():
         changed_or |= gui_updater(client, subleaf, no_update_because_new_subchild)
-        
+
     # propagating the children changed flag
     return changed_or
 
@@ -382,7 +382,7 @@ class _UpdateThread(threading.Thread):
                             ws.ping()
 
                         client.idle()
-                        
+
                 except Exception as e:
                     log.error('error updating gui', exc_info=True)
 
@@ -412,7 +412,7 @@ class App(BaseHTTPRequestHandler, object):
     def log_error(self, format_string, *args):
         msg = format_string % args
         self.log.error("%s %s" % (self.address_string(), msg))
-    
+
     def _instance(self):
         global clients
         global runtimeInstances
@@ -427,7 +427,7 @@ class App(BaseHTTPRequestHandler, object):
             runtimeInstances[str(id(self))] = self
             clients[k] = self
         wshost, wsport = self.server.websocket_address
-        
+
         net_interface_ip = self.connection.getsockname()[0]
         if self.server.host_name != None:
             net_interface_ip = self.server.host_name
@@ -440,7 +440,7 @@ class App(BaseHTTPRequestHandler, object):
         clients[k].script_header = """
 <script>
 // from http://stackoverflow.com/questions/5515869/string-length-in-bytes-in-javascript
-// using UTF8 strings I noticed that the javascript .length of a string returned less 
+// using UTF8 strings I noticed that the javascript .length of a string returned less
 // characters than they actually were
 var pendingSendMessages = [];
 var ws = null;
@@ -568,7 +568,7 @@ function renewConnection(){
 
 function checkTimeout(){
     if(pendingSendMessages.length>0)
-        renewConnection();    
+        renewConnection();
 };
 
 function websocketOnClose(evt){
@@ -686,7 +686,7 @@ function uploadFile(widgetID, eventSuccess, eventFail, eventData, file){
         """ Idle function called every UPDATE_INTERVAL before the gui update.
             Useful to schedule tasks. """
         pass
-        
+
     def send_spontaneous_websocket_message(self, message):
         """this code allows to send spontaneous messages to the clients.
            It can be considered thread-safe because can be called in two contexts:
@@ -703,7 +703,7 @@ function uploadFile(widgetID, eventSuccess, eventFail, eventData, file){
                 self.log.error("sending websocket spontaneous message", exc_info=True)
                 self.client.websockets.remove(ws)
         update_event.clear()
-        
+
     def notification_message(self, title, content, icon=""):
         """This function sends "javascript" message to the client, that executes its content.
            In this particular code, a notification message is shown
@@ -726,7 +726,7 @@ function uploadFile(widgetID, eventSuccess, eventFail, eventData, file){
             }
         """%{'title': title, 'content': content, 'icon': icon}
         self.send_spontaneous_websocket_message('javascript,' + code)
-    
+
     def do_POST(self):
         self._instance()
         file_data = None
@@ -889,7 +889,7 @@ class ThreadedHTTPServer(socketserver.ThreadingMixIn, HTTPServer):
 
     def __init__(self, server_address, RequestHandlerClass, websocket_address,
                  auth, multiple_instance, enable_file_cache, update_interval,
-                 websocket_timeout_timer_ms, host_name, pending_messages_queue_length, 
+                 websocket_timeout_timer_ms, host_name, pending_messages_queue_length,
                  *userdata):
         HTTPServer.__init__(self, server_address, RequestHandlerClass)
         self.websocket_address = websocket_address
@@ -952,7 +952,7 @@ class Server(object):
                                            (wshost, wsport), self._auth,
                                            self._multiple_instance, self._enable_file_cache,
                                            self._update_interval, self._websocket_timeout_timer_ms,
-                                           self._host_name, self._pending_messages_queue_length, 
+                                           self._host_name, self._pending_messages_queue_length,
                                            *userdata)
         shost, sport = self._sserver.socket.getsockname()[:2]
         # when listening on multiple net interfaces the browsers connects to localhost
